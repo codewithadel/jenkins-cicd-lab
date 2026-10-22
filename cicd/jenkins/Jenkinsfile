@@ -1,18 +1,76 @@
+
 pipeline {
-    agent any
-    options { timestamps(); disableConcurrentBuilds(); skipDefaultCheckout(true) }
+    agent {
+        label 'docker-agent'
+    }
+
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+        skipDefaultCheckout(true)
+    }
+
     stages {
-        stage('Checkout') { steps { checkout scm } }
-        stage('Build and Test') {
-            steps { dir('app') { sh 'mvn -B clean verify' } }
-            post { always { junit allowEmptyResults: true, testResults: 'app/target/surefire-reports/*.xml' } }
+        stage('Checkout SCM') {
+            steps {
+                checkout scm
+            }
         }
-        stage('Archive JAR') {
-            steps { archiveArtifacts artifacts: 'app/target/*.jar', fingerprint: true }
+
+        stage('Validate Environment') {
+            steps {
+                sh '''
+                    echo "Running on:"
+                    hostname
+
+                    echo "Java version:"
+                    java -version
+
+                    echo "Git version:"
+                    git --version
+
+                    echo "Maven Wrapper:"
+                    cd app
+                    sh ./mvnw -version
+                '''
+            }
+        }
+
+        stage('Build and Test') {
+            steps {
+                dir('app') {
+                    sh 'sh ./mvnw clean verify'
+                }
+            }
+        }
+
+        stage('Archive Artifact') {
+            steps {
+                archiveArtifacts(
+                    artifacts: 'app/target/*.jar',
+                    fingerprint: true
+                )
+            }
         }
     }
+
     post {
-        success { echo 'CI pipeline passed. Ready for Docker and Kubernetes stages.' }
-        failure { echo 'CI pipeline failed. Review console and test results.' }
+        success {
+            echo 'Spring Boot CI build completed successfully.'
+        }
+
+        failure {
+            echo 'Pipeline failed. Check console output.'
+        }
     }
 }
+
+#Understanding the pipeline stages
+#Stage:heckout SCM -> Pulls the latest code from GitHub
+#Validate Build Environment -> Pulls the latest code from GitHub
+#Checks Java and Maven Wrapper availability
+#Build and Test	Compiles the application, executes tests, and packages the JAR
+#Archive JAR	Saves the build artifact in Jenkins for future reference
+
+#####Important:#####
+# Jenkins must have Java 21 installed on the agent executing this pipeline. Java installed on your Mac is not automatically available to Jenkins if Jenkins runs inside Docker.
