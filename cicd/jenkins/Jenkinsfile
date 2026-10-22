@@ -48,6 +48,22 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                dir('app') {
+                    withSonarQubeEnv('SonarQube') {
+                        sh '''
+                            chmod +x ./mvnw
+                            ./mvnw -B -ntp sonar:sonar \
+                              -Dsonar.projectKey=product-api \
+                              -Dsonar.projectName=product-api
+                        '''
+                    }
+                }
+            }
+        }
+
+
         stage('Archive Artifact') {
             steps {
                 archiveArtifacts(
@@ -56,7 +72,6 @@ pipeline {
                 )
             }
         }
-    }
 
     post {
         success {
