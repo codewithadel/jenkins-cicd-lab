@@ -1,0 +1,18 @@
+pipeline {
+    agent any
+    options { timestamps(); disableConcurrentBuilds(); skipDefaultCheckout(true) }
+    stages {
+        stage('Checkout') { steps { checkout scm } }
+        stage('Build and Test') {
+            steps { dir('app') { sh 'mvn -B clean verify' } }
+            post { always { junit allowEmptyResults: true, testResults: 'app/target/surefire-reports/*.xml' } }
+        }
+        stage('Archive JAR') {
+            steps { archiveArtifacts artifacts: 'app/target/*.jar', fingerprint: true }
+        }
+    }
+    post {
+        success { echo 'CI pipeline passed. Ready for Docker and Kubernetes stages.' }
+        failure { echo 'CI pipeline failed. Review console and test results.' }
+    }
+}

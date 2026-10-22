@@ -1,0 +1,3 @@
+.git
+**/target/*
+!app/target/product-api-1.0.0.jar
