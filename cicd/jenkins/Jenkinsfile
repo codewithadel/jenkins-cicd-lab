@@ -64,10 +64,3 @@ pipeline {
         }
     }
 }
-
-#Understanding the pipeline stages
-#Stage:heckout SCM -> Pulls the latest code from GitHub
-#Validate Build Environment -> Pulls the latest code from GitHub
-#Checks Java and Maven Wrapper availability
-#Build and Test	Compiles the application, executes tests, and packages the JAR
-#Archive JAR	Saves the build artifact in Jenkins for future reference
