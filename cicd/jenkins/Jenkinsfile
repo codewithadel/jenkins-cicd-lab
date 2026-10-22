@@ -39,7 +39,11 @@ pipeline {
         stage('Build and Test') {
             steps {
                 dir('app') {
-                    sh 'sh ./mvnw clean verify'
+                    sh '''
+                        chmod +x ./mvnw
+                        ./mvnw -B -ntp clean verify \
+                           -Dmaven.wagon.http.retryHandler.count=3'sh ./mvnw clean verify'
+                    '''
                 }
             }
         }
