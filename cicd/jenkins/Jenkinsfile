@@ -65,14 +65,9 @@ pipeline {
     }
 }
 
-#If using docker agent disregard the below configuration steps commented out.
-
 #Understanding the pipeline stages
 #Stage:heckout SCM -> Pulls the latest code from GitHub
 #Validate Build Environment -> Pulls the latest code from GitHub
 #Checks Java and Maven Wrapper availability
 #Build and Test	Compiles the application, executes tests, and packages the JAR
 #Archive JAR	Saves the build artifact in Jenkins for future reference
-
-#####Important:#####
-# Jenkins must have Java 21 installed on the agent executing this pipeline. Java installed on your Mac is not automatically available to Jenkins if Jenkins runs inside Docker.
