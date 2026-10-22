@@ -53,8 +53,21 @@ pipeline {
                 dir('app') {
                     withSonarQubeEnv('SonarQube') {
                         sh '''
+                                                        set -eux
+
+                                                        echo "=== Checking Java ==="
+                                                        java -version
+
+                                                        echo "=== Checking Maven Wrapper ==="
+                                                        ls -la
                             chmod +x ./mvnw
-                            ./mvnw -B -ntp sonar:sonar \
+
+                                                        echo "=== Checking SonarQube URL ==="
+                                                        echo "$SONAR_HOST_URL"
+
+                                                        echo "=== Running SonarQube Analysis ==="
+                                                        ./mvnw -B -ntp \
+                                                            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
                               -Dsonar.projectKey=product-api \
                               -Dsonar.projectName=product-api
                         '''
