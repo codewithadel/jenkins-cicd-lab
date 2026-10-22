@@ -65,6 +65,8 @@ pipeline {
     }
 }
 
+#If using docker agent disregard the below configuration steps commented out.
+
 #Understanding the pipeline stages
 #Stage:heckout SCM -> Pulls the latest code from GitHub
 #Validate Build Environment -> Pulls the latest code from GitHub
