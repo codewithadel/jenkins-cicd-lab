@@ -48,26 +48,26 @@ pipeline {
             }
         }
 
+        stage('SonarQube Integration Test') {
+            steps {
+                echo 'STEP 1: Before SonarQube wrapper'
+
+                withSonarQubeEnv('Sonarqube') {
+                    echo 'STEP 2: SonarQube environment loaded'
+                    sh 'echo "SONAR_HOST_URL=$SONAR_HOST_URL"'
+                }
+
+                echo 'STEP 3: Integration completed'
+            }
+        }
+
         stage('SonarQube Analysis') {
             steps {
                 dir('app') {
-                    withSonarQubeEnv('SonarQube') {
+                    withSonarQubeEnv('Sonarqube') {
                         sh '''
-                                                        set -eux
-
-                                                        echo "=== Checking Java ==="
-                                                        java -version
-
-                                                        echo "=== Checking Maven Wrapper ==="
-                                                        ls -la
                             chmod +x ./mvnw
-
-                                                        echo "=== Checking SonarQube URL ==="
-                                                        echo "$SONAR_HOST_URL"
-
-                                                        echo "=== Running SonarQube Analysis ==="
-                                                        ./mvnw -B -ntp \
-                                                            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+                            ./mvnw -B -ntp sonar:sonar \
                               -Dsonar.projectKey=product-api \
                               -Dsonar.projectName=product-api
                         '''
@@ -76,6 +76,13 @@ pipeline {
             }
         }
 
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
 
         stage('Archive Artifact') {
             steps {
